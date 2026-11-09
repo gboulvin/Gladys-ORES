@@ -1,0 +1,81 @@
+# ORES für Gladys Assistant
+
+Diese Integration überwacht das **ORES**-Verteilnetz (Wallonien, Belgien) für Ihre Adresse:
+laufende Störungen, geplante Arbeiten mit Stromunterbrechung, angekündigte Verzögerungen. Sie
+liest die öffentliche ORES-Störungskarte
+([Pannes et interruptions](https://www.ores.be/pannes-et-interruptions/)).
+
+> **Inoffizielle** Integration, nicht mit ORES verbunden. Sie nutzt den Webdienst ohne
+> Anmeldung hinter der öffentlichen Störungskarte von ores.be, den ORES jederzeit ändern kann.
+
+Tag: **cloud** (die Integration fragt die ORES-Website ab, lokal wird nichts gelesen).
+
+## Konfiguration
+
+| Feld                               | Pflicht | Zweck                                                                            |
+| ---------------------------------- | ------- | -------------------------------------------------------------------------------- |
+| Postleitzahl                       | ja      | Die überwachte Gemeinde.                                                         |
+| Ortschaft                          | nein    | Nur wenn sich mehrere Ortschaften dieselbe Postleitzahl teilen.                  |
+| Straße                             | nein    | Um zu wissen, ob **Ihre** Straße betroffen ist, nicht nur die Gemeinde.          |
+| Hausnummer                         | nein    | Grenzt auf Ihre Straßenseite ein (ORES veröffentlicht gerade/ungerade Bereiche). |
+| Vorschau geplanter Arbeiten (Tage) | nein    | Später angekündigte Arbeiten werden ignoriert (standardmäßig 7 Tage).            |
+| Aktualisierungsintervall (s)       | nein    | Wie oft die Karte gelesen wird (standardmäßig 300 s, mindestens 60 s).           |
+
+Ohne Straße gilt die ganze Gemeinde als „Ihre Adresse". Straßennamen werden ohne Akzente,
+Groß-/Kleinschreibung und Satzzeichen verglichen: „Rue de l'Église" entspricht
+„RUE DE L EGLISE".
+
+Die Schaltfläche **ORES-Störungskarte testen** prüft, ob die Karte antwortet, und nennt die
+Anzahl der Vorfälle im Netz und in Ihrer Gemeinde.
+
+## Das Gerät „ORES network status"
+
+Erstellen Sie das Gerät nach der Installation im Reiter **Entdecken**. Es bietet vier binäre
+Sensoren (0/1):
+
+- **Störung an meiner Adresse**: eine ungeplante Störung betrifft Sie;
+- **Arbeiten an meiner Adresse**: geplante Arbeiten mit Unterbrechung laufen bei Ihnen;
+- **Bevorstehende Arbeiten an meiner Adresse**: Arbeiten sind im gewählten Zeitraum angekündigt;
+- **Vorfall in meiner Gemeinde**: mindestens eine Störung oder Baustelle läuft dort.
+
+## Szenen-Auslöser
+
+| Auslöser                             | Wann                                             |
+| ------------------------------------ | ------------------------------------------------ |
+| ORES-Störung oder Arbeiten begonnen  | eine Störung oder Baustelle beginnt              |
+| ORES-Störung oder Arbeiten beendet   | eine laufende Störung oder Baustelle ist beendet |
+| ORES-Störung oder Arbeiten verzögert | ORES kündigt ein späteres Ende an                |
+| Geplante ORES-Arbeiten angekündigt   | neue geplante Arbeiten erscheinen auf der Karte  |
+
+Filter: **Art** (Störung / geplante Arbeiten) und **Wo** (an meiner Adresse / anderswo in
+meiner Gemeinde). Variablen für die folgenden Aktionen: `{{triggerEvent.data.reference}}`,
+`city`, `start_time`, `end_time` (ISO-Daten, UTC) und `customers` (betroffene Kunden).
+
+Die erste Abfrage nach der Installation (oder einer Adressänderung) dient als Referenz:
+bereits laufende Vorfälle lösen nichts aus. Der Zustand wird unter `/data` gespeichert, ein
+Neustart wiederholt oder verpasst also keinen Übergang.
+
+## Szenen-Aktionen
+
+- **Adresse im ORES-Netz prüfen**: eine beliebige Adresse (Zweitwohnung, Angehörige...).
+  Ausgaben: `outage`, `planned_interruption`, `upcoming_interruption`, `commune_incidents`,
+  `reference`, `end_time`, `next_start_time`.
+- **ORES-Netzstatus abrufen**: der letzte bekannte Status Ihrer Adresse, ohne Netzwerkabfrage,
+  mit denselben Ausgaben.
+
+## Widget
+
+Das Widget **ORES-Netzstatus** zeigt die Live-Sensoren, den Status Ihrer Adresse, die Anzahl
+der Vorfälle in der Gemeinde, die Liste der Störungen und Arbeiten (Details per Tippen) und
+eine Schaltfläche **Aktualisieren**.
+
+## Gas- und Stromverbrauch
+
+Noch nicht verfügbar. Das Portal my.ores.be hat keine öffentliche API, und die Anmeldung per
+itsme / eID lässt sich nicht automatisieren. Eine nächste Version wird sie über die
+E-Mail-/Passwort-Anmeldung von my.ores.be hinzufügen, sofern diese es erlaubt.
+
+## Datenschutz
+
+Nur die öffentliche Liste der Vorfälle wird heruntergeladen. Ihre Adresse verlässt Ihr Gladys
+nie: der Abgleich erfolgt lokal.

@@ -1,0 +1,805 @@
+{
+  "manifest_version": 1,
+  "type": "device",
+  "name": "ORES",
+  "description": {
+    "en": "ORES (Wallonia) network status: outages and planned works at your address.",
+    "fr": "Statut du réseau ORES (Wallonie) : pannes et travaux planifiés à votre adresse.",
+    "de": "ORES-Netzstatus (Wallonien): Störungen und geplante Arbeiten an Ihrer Adresse.",
+    "es": "Estado de la red ORES (Valonia): averías y trabajos previstos en su dirección."
+  },
+  "version": "0.0.0",
+  "docker_image": "ghcr.io/gboulvin/gladys-ores:0.0.0",
+  "gladys_version": ">=5.1.0",
+  "cover_image": "https://raw.githubusercontent.com/gboulvin/Gladys-ORES/main/cover.png",
+  "categories": ["energy", "services"],
+  "transports": ["cloud"],
+  "config_schema": [
+    {
+      "key": "intro",
+      "type": "section",
+      "label": {
+        "en": "Your address on the ORES network",
+        "fr": "Votre adresse sur le réseau ORES",
+        "de": "Ihre Adresse im ORES-Netz",
+        "es": "Su dirección en la red ORES"
+      },
+      "description": {
+        "en": "The integration reads the public ORES outage map every few minutes and watches the address below. Only the zip code is required: add the street (and the house number) to know whether YOUR home is impacted, not only your municipality. Unofficial integration, not affiliated with ORES.",
+        "fr": "L'intégration lit la carte publique des pannes ORES toutes les quelques minutes et surveille l'adresse ci-dessous. Seul le code postal est obligatoire : ajoutez la rue (et le numéro) pour savoir si VOTRE logement est touché, et pas seulement votre commune. Intégration non officielle, sans lien avec ORES.",
+        "de": "Die Integration liest alle paar Minuten die öffentliche ORES-Störungskarte und überwacht die untenstehende Adresse. Nur die Postleitzahl ist erforderlich: Geben Sie die Straße (und die Hausnummer) an, um zu wissen, ob IHR Zuhause betroffen ist, nicht nur Ihre Gemeinde. Inoffizielle Integration, nicht mit ORES verbunden.",
+        "es": "La integración lee el mapa público de averías de ORES cada pocos minutos y vigila la dirección indicada. Solo el código postal es obligatorio: añada la calle (y el número) para saber si SU vivienda está afectada, y no solo su municipio. Integración no oficial, sin relación con ORES."
+      },
+      "links": [
+        {
+          "url": "https://www.ores.be/pannes-et-interruptions/",
+          "label": {
+            "en": "ORES outages and interruptions",
+            "fr": "Pannes et interruptions ORES",
+            "de": "ORES-Störungen und Unterbrechungen",
+            "es": "Averías e interrupciones ORES"
+          }
+        }
+      ]
+    },
+    {
+      "key": "zip_code",
+      "type": "string",
+      "label": {
+        "en": "Zip code",
+        "fr": "Code postal",
+        "de": "Postleitzahl",
+        "es": "Código postal"
+      },
+      "placeholder": {
+        "en": "e.g. 5000",
+        "fr": "ex. 5000",
+        "de": "z. B. 5000",
+        "es": "p. ej. 5000"
+      },
+      "required": true
+    },
+    {
+      "key": "city",
+      "type": "string",
+      "label": {
+        "en": "Locality (optional)",
+        "fr": "Localité (facultatif)",
+        "de": "Ortschaft (optional)",
+        "es": "Localidad (opcional)"
+      },
+      "description": {
+        "en": "Only when several localities share your zip code.",
+        "fr": "Uniquement si plusieurs localités partagent votre code postal.",
+        "de": "Nur wenn sich mehrere Ortschaften Ihre Postleitzahl teilen.",
+        "es": "Solo si varias localidades comparten su código postal."
+      },
+      "placeholder": {
+        "en": "e.g. Jambes",
+        "fr": "ex. Jambes",
+        "de": "z. B. Jambes",
+        "es": "p. ej. Jambes"
+      },
+      "required": false
+    },
+    {
+      "key": "street",
+      "type": "string",
+      "label": {
+        "en": "Street (optional)",
+        "fr": "Rue (facultatif)",
+        "de": "Straße (optional)",
+        "es": "Calle (opcional)"
+      },
+      "placeholder": {
+        "en": "e.g. Rue de Fer",
+        "fr": "ex. Rue de Fer",
+        "de": "z. B. Rue de Fer",
+        "es": "p. ej. Rue de Fer"
+      },
+      "required": false
+    },
+    {
+      "key": "house_number",
+      "type": "string",
+      "label": {
+        "en": "House number (optional)",
+        "fr": "Numéro (facultatif)",
+        "de": "Hausnummer (optional)",
+        "es": "Número (opcional)"
+      },
+      "placeholder": { "en": "e.g. 12", "fr": "ex. 12", "de": "z. B. 12", "es": "p. ej. 12" },
+      "required": false
+    },
+    {
+      "key": "planned_horizon_days",
+      "type": "number",
+      "label": {
+        "en": "Planned works horizon (days)",
+        "fr": "Horizon des travaux planifiés (jours)",
+        "de": "Vorschau geplanter Arbeiten (Tage)",
+        "es": "Horizonte de trabajos previstos (días)"
+      },
+      "description": {
+        "en": "Planned works announced further ahead are ignored.",
+        "fr": "Les travaux annoncés plus tard sont ignorés.",
+        "de": "Später angekündigte Arbeiten werden ignoriert.",
+        "es": "Los trabajos anunciados más adelante se ignoran."
+      },
+      "required": false,
+      "default": 7,
+      "min": 1,
+      "max": 60
+    },
+    {
+      "key": "poll_frequency",
+      "type": "number",
+      "label": {
+        "en": "Refresh interval (s)",
+        "fr": "Intervalle de rafraîchissement (s)",
+        "de": "Aktualisierungsintervall (s)",
+        "es": "Intervalo de actualización (s)"
+      },
+      "description": {
+        "en": "How often the ORES outage map is read, in seconds (one minute minimum).",
+        "fr": "Fréquence de lecture de la carte des pannes ORES, en secondes (une minute minimum).",
+        "de": "Wie oft die ORES-Störungskarte gelesen wird, in Sekunden (mindestens eine Minute).",
+        "es": "Frecuencia de lectura del mapa de averías de ORES, en segundos (un minuto como mínimo)."
+      },
+      "required": false,
+      "default": 300,
+      "min": 60,
+      "max": 3600
+    }
+  ],
+  "actions": [
+    {
+      "key": "test_connection",
+      "label": {
+        "en": "Test the ORES outage map",
+        "fr": "Tester la carte des pannes ORES",
+        "de": "ORES-Störungskarte testen",
+        "es": "Probar el mapa de averías de ORES"
+      },
+      "timeout_seconds": 30
+    }
+  ],
+  "scene_triggers": [
+    {
+      "key": "outage_started",
+      "label": {
+        "en": "ORES outage or works started",
+        "fr": "Début de panne ou de travaux ORES",
+        "de": "ORES-Störung oder Arbeiten begonnen",
+        "es": "Inicio de avería o trabajos ORES"
+      },
+      "description": {
+        "en": "An outage or planned works began in your municipality or at your address.",
+        "fr": "Une panne ou des travaux planifiés ont commencé dans votre commune ou à votre adresse.",
+        "de": "Eine Störung oder geplante Arbeiten haben in Ihrer Gemeinde oder an Ihrer Adresse begonnen.",
+        "es": "Una avería o trabajos previstos han comenzado en su municipio o en su dirección."
+      },
+      "fields": [
+        {
+          "key": "kind",
+          "type": "multi_select",
+          "label": { "en": "Type", "fr": "Type", "de": "Art", "es": "Tipo" },
+          "options": [
+            {
+              "value": "outage",
+              "label": { "en": "Outage", "fr": "Panne", "de": "Störung", "es": "Avería" }
+            },
+            {
+              "value": "planned",
+              "label": {
+                "en": "Planned works",
+                "fr": "Travaux planifiés",
+                "de": "Geplante Arbeiten",
+                "es": "Trabajos previstos"
+              }
+            }
+          ]
+        },
+        {
+          "key": "scope",
+          "type": "multi_select",
+          "label": { "en": "Where", "fr": "Où", "de": "Wo", "es": "Dónde" },
+          "options": [
+            {
+              "value": "address",
+              "label": {
+                "en": "At my address",
+                "fr": "À mon adresse",
+                "de": "An meiner Adresse",
+                "es": "En mi dirección"
+              }
+            },
+            {
+              "value": "commune",
+              "label": {
+                "en": "Elsewhere in my municipality",
+                "fr": "Ailleurs dans ma commune",
+                "de": "Anderswo in meiner Gemeinde",
+                "es": "En otro lugar de mi municipio"
+              }
+            }
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "key": "reference",
+          "type": "string",
+          "label": {
+            "en": "ORES reference",
+            "fr": "Référence ORES",
+            "de": "ORES-Referenz",
+            "es": "Referencia ORES"
+          }
+        },
+        {
+          "key": "city",
+          "type": "string",
+          "label": { "en": "Locality", "fr": "Localité", "de": "Ortschaft", "es": "Localidad" }
+        },
+        {
+          "key": "start_time",
+          "type": "string",
+          "label": {
+            "en": "Start (ISO)",
+            "fr": "Début (ISO)",
+            "de": "Beginn (ISO)",
+            "es": "Inicio (ISO)"
+          }
+        },
+        {
+          "key": "end_time",
+          "type": "string",
+          "label": {
+            "en": "Expected end (ISO)",
+            "fr": "Fin prévue (ISO)",
+            "de": "Voraussichtliches Ende (ISO)",
+            "es": "Fin previsto (ISO)"
+          }
+        },
+        {
+          "key": "customers",
+          "type": "number",
+          "label": {
+            "en": "Customers impacted",
+            "fr": "Clients impactés",
+            "de": "Betroffene Kunden",
+            "es": "Clientes afectados"
+          }
+        }
+      ]
+    },
+    {
+      "key": "outage_ended",
+      "label": {
+        "en": "ORES outage or works ended",
+        "fr": "Fin de panne ou de travaux ORES",
+        "de": "ORES-Störung oder Arbeiten beendet",
+        "es": "Fin de avería o trabajos ORES"
+      },
+      "description": {
+        "en": "An outage or planned works in your municipality or at your address are over.",
+        "fr": "Une panne ou des travaux dans votre commune ou à votre adresse sont terminés.",
+        "de": "Eine Störung oder Arbeiten in Ihrer Gemeinde oder an Ihrer Adresse sind beendet.",
+        "es": "Una avería o trabajos en su municipio o en su dirección han terminado."
+      },
+      "fields": [
+        {
+          "key": "kind",
+          "type": "multi_select",
+          "label": { "en": "Type", "fr": "Type", "de": "Art", "es": "Tipo" },
+          "options": [
+            {
+              "value": "outage",
+              "label": { "en": "Outage", "fr": "Panne", "de": "Störung", "es": "Avería" }
+            },
+            {
+              "value": "planned",
+              "label": {
+                "en": "Planned works",
+                "fr": "Travaux planifiés",
+                "de": "Geplante Arbeiten",
+                "es": "Trabajos previstos"
+              }
+            }
+          ]
+        },
+        {
+          "key": "scope",
+          "type": "multi_select",
+          "label": { "en": "Where", "fr": "Où", "de": "Wo", "es": "Dónde" },
+          "options": [
+            {
+              "value": "address",
+              "label": {
+                "en": "At my address",
+                "fr": "À mon adresse",
+                "de": "An meiner Adresse",
+                "es": "En mi dirección"
+              }
+            },
+            {
+              "value": "commune",
+              "label": {
+                "en": "Elsewhere in my municipality",
+                "fr": "Ailleurs dans ma commune",
+                "de": "Anderswo in meiner Gemeinde",
+                "es": "En otro lugar de mi municipio"
+              }
+            }
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "key": "reference",
+          "type": "string",
+          "label": {
+            "en": "ORES reference",
+            "fr": "Référence ORES",
+            "de": "ORES-Referenz",
+            "es": "Referencia ORES"
+          }
+        },
+        {
+          "key": "city",
+          "type": "string",
+          "label": { "en": "Locality", "fr": "Localité", "de": "Ortschaft", "es": "Localidad" }
+        },
+        {
+          "key": "start_time",
+          "type": "string",
+          "label": {
+            "en": "Start (ISO)",
+            "fr": "Début (ISO)",
+            "de": "Beginn (ISO)",
+            "es": "Inicio (ISO)"
+          }
+        },
+        {
+          "key": "end_time",
+          "type": "string",
+          "label": { "en": "End (ISO)", "fr": "Fin (ISO)", "de": "Ende (ISO)", "es": "Fin (ISO)" }
+        },
+        {
+          "key": "customers",
+          "type": "number",
+          "label": {
+            "en": "Customers impacted",
+            "fr": "Clients impactés",
+            "de": "Betroffene Kunden",
+            "es": "Clientes afectados"
+          }
+        }
+      ]
+    },
+    {
+      "key": "outage_delayed",
+      "label": {
+        "en": "ORES outage or works delayed",
+        "fr": "Panne ou travaux ORES en retard",
+        "de": "ORES-Störung oder Arbeiten verzögert",
+        "es": "Avería o trabajos ORES retrasados"
+      },
+      "description": {
+        "en": "ORES announced a later end for an outage or works in progress.",
+        "fr": "ORES a annoncé une fin plus tardive pour une panne ou des travaux en cours.",
+        "de": "ORES hat ein späteres Ende für eine laufende Störung oder Arbeiten angekündigt.",
+        "es": "ORES anunció un fin más tardío para una avería o trabajos en curso."
+      },
+      "fields": [
+        {
+          "key": "kind",
+          "type": "multi_select",
+          "label": { "en": "Type", "fr": "Type", "de": "Art", "es": "Tipo" },
+          "options": [
+            {
+              "value": "outage",
+              "label": { "en": "Outage", "fr": "Panne", "de": "Störung", "es": "Avería" }
+            },
+            {
+              "value": "planned",
+              "label": {
+                "en": "Planned works",
+                "fr": "Travaux planifiés",
+                "de": "Geplante Arbeiten",
+                "es": "Trabajos previstos"
+              }
+            }
+          ]
+        },
+        {
+          "key": "scope",
+          "type": "multi_select",
+          "label": { "en": "Where", "fr": "Où", "de": "Wo", "es": "Dónde" },
+          "options": [
+            {
+              "value": "address",
+              "label": {
+                "en": "At my address",
+                "fr": "À mon adresse",
+                "de": "An meiner Adresse",
+                "es": "En mi dirección"
+              }
+            },
+            {
+              "value": "commune",
+              "label": {
+                "en": "Elsewhere in my municipality",
+                "fr": "Ailleurs dans ma commune",
+                "de": "Anderswo in meiner Gemeinde",
+                "es": "En otro lugar de mi municipio"
+              }
+            }
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "key": "reference",
+          "type": "string",
+          "label": {
+            "en": "ORES reference",
+            "fr": "Référence ORES",
+            "de": "ORES-Referenz",
+            "es": "Referencia ORES"
+          }
+        },
+        {
+          "key": "city",
+          "type": "string",
+          "label": { "en": "Locality", "fr": "Localité", "de": "Ortschaft", "es": "Localidad" }
+        },
+        {
+          "key": "start_time",
+          "type": "string",
+          "label": {
+            "en": "Start (ISO)",
+            "fr": "Début (ISO)",
+            "de": "Beginn (ISO)",
+            "es": "Inicio (ISO)"
+          }
+        },
+        {
+          "key": "end_time",
+          "type": "string",
+          "label": {
+            "en": "New expected end (ISO)",
+            "fr": "Nouvelle fin prévue (ISO)",
+            "de": "Neues voraussichtliches Ende (ISO)",
+            "es": "Nuevo fin previsto (ISO)"
+          }
+        },
+        {
+          "key": "customers",
+          "type": "number",
+          "label": {
+            "en": "Customers impacted",
+            "fr": "Clients impactés",
+            "de": "Betroffene Kunden",
+            "es": "Clientes afectados"
+          }
+        }
+      ]
+    },
+    {
+      "key": "interruption_scheduled",
+      "label": {
+        "en": "ORES planned works announced",
+        "fr": "Travaux ORES annoncés",
+        "de": "Geplante ORES-Arbeiten angekündigt",
+        "es": "Trabajos ORES anunciados"
+      },
+      "description": {
+        "en": "ORES announced planned works (with a power cut) in your municipality or at your address.",
+        "fr": "ORES a annoncé des travaux planifiés (avec coupure) dans votre commune ou à votre adresse.",
+        "de": "ORES hat geplante Arbeiten (mit Unterbrechung) in Ihrer Gemeinde oder an Ihrer Adresse angekündigt.",
+        "es": "ORES anunció trabajos previstos (con corte) en su municipio o en su dirección."
+      },
+      "fields": [
+        {
+          "key": "scope",
+          "type": "multi_select",
+          "label": { "en": "Where", "fr": "Où", "de": "Wo", "es": "Dónde" },
+          "options": [
+            {
+              "value": "address",
+              "label": {
+                "en": "At my address",
+                "fr": "À mon adresse",
+                "de": "An meiner Adresse",
+                "es": "En mi dirección"
+              }
+            },
+            {
+              "value": "commune",
+              "label": {
+                "en": "Elsewhere in my municipality",
+                "fr": "Ailleurs dans ma commune",
+                "de": "Anderswo in meiner Gemeinde",
+                "es": "En otro lugar de mi municipio"
+              }
+            }
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "key": "reference",
+          "type": "string",
+          "label": {
+            "en": "ORES reference",
+            "fr": "Référence ORES",
+            "de": "ORES-Referenz",
+            "es": "Referencia ORES"
+          }
+        },
+        {
+          "key": "city",
+          "type": "string",
+          "label": { "en": "Locality", "fr": "Localité", "de": "Ortschaft", "es": "Localidad" }
+        },
+        {
+          "key": "start_time",
+          "type": "string",
+          "label": {
+            "en": "Planned start (ISO)",
+            "fr": "Début prévu (ISO)",
+            "de": "Geplanter Beginn (ISO)",
+            "es": "Inicio previsto (ISO)"
+          }
+        },
+        {
+          "key": "end_time",
+          "type": "string",
+          "label": {
+            "en": "Planned end (ISO)",
+            "fr": "Fin prévue (ISO)",
+            "de": "Geplantes Ende (ISO)",
+            "es": "Fin previsto (ISO)"
+          }
+        },
+        {
+          "key": "customers",
+          "type": "number",
+          "label": {
+            "en": "Customers impacted",
+            "fr": "Clients impactés",
+            "de": "Betroffene Kunden",
+            "es": "Clientes afectados"
+          }
+        }
+      ]
+    }
+  ],
+  "scene_actions": [
+    {
+      "key": "check_address",
+      "label": {
+        "en": "Check an address on the ORES network",
+        "fr": "Vérifier une adresse sur le réseau ORES",
+        "de": "Adresse im ORES-Netz prüfen",
+        "es": "Comprobar una dirección en la red ORES"
+      },
+      "description": {
+        "en": "Reads the ORES outage map for any address (second home, relative...).",
+        "fr": "Lit la carte des pannes ORES pour n'importe quelle adresse (seconde résidence, proche...).",
+        "de": "Liest die ORES-Störungskarte für eine beliebige Adresse (Zweitwohnung, Angehörige...).",
+        "es": "Lee el mapa de averías de ORES para cualquier dirección (segunda residencia, familiar...)."
+      },
+      "timeout_seconds": 30,
+      "fields": [
+        {
+          "key": "zip_code",
+          "type": "string",
+          "label": {
+            "en": "Zip code",
+            "fr": "Code postal",
+            "de": "Postleitzahl",
+            "es": "Código postal"
+          },
+          "required": true
+        },
+        {
+          "key": "city",
+          "type": "string",
+          "label": { "en": "Locality", "fr": "Localité", "de": "Ortschaft", "es": "Localidad" }
+        },
+        {
+          "key": "street",
+          "type": "string",
+          "label": { "en": "Street", "fr": "Rue", "de": "Straße", "es": "Calle" }
+        },
+        {
+          "key": "house_number",
+          "type": "string",
+          "label": { "en": "House number", "fr": "Numéro", "de": "Hausnummer", "es": "Número" }
+        }
+      ],
+      "outputs": [
+        {
+          "key": "outage",
+          "type": "boolean",
+          "label": {
+            "en": "Outage in progress",
+            "fr": "Panne en cours",
+            "de": "Störung im Gange",
+            "es": "Avería en curso"
+          }
+        },
+        {
+          "key": "planned_interruption",
+          "type": "boolean",
+          "label": {
+            "en": "Planned works in progress",
+            "fr": "Travaux en cours",
+            "de": "Arbeiten im Gange",
+            "es": "Trabajos en curso"
+          }
+        },
+        {
+          "key": "upcoming_interruption",
+          "type": "boolean",
+          "label": {
+            "en": "Upcoming planned works",
+            "fr": "Travaux à venir",
+            "de": "Bevorstehende Arbeiten",
+            "es": "Trabajos próximos"
+          }
+        },
+        {
+          "key": "commune_incidents",
+          "type": "number",
+          "label": {
+            "en": "Incidents in the municipality",
+            "fr": "Incidents dans la commune",
+            "de": "Vorfälle in der Gemeinde",
+            "es": "Incidencias en el municipio"
+          }
+        },
+        {
+          "key": "reference",
+          "type": "string",
+          "label": {
+            "en": "ORES reference",
+            "fr": "Référence ORES",
+            "de": "ORES-Referenz",
+            "es": "Referencia ORES"
+          }
+        },
+        {
+          "key": "end_time",
+          "type": "string",
+          "label": {
+            "en": "Expected end (ISO)",
+            "fr": "Fin prévue (ISO)",
+            "de": "Voraussichtliches Ende (ISO)",
+            "es": "Fin previsto (ISO)"
+          }
+        },
+        {
+          "key": "next_start_time",
+          "type": "string",
+          "label": {
+            "en": "Next works start (ISO)",
+            "fr": "Début des prochains travaux (ISO)",
+            "de": "Beginn der nächsten Arbeiten (ISO)",
+            "es": "Inicio de los próximos trabajos (ISO)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "get_network_status",
+      "label": {
+        "en": "Get the ORES network status",
+        "fr": "Obtenir le statut du réseau ORES",
+        "de": "ORES-Netzstatus abrufen",
+        "es": "Obtener el estado de la red ORES"
+      },
+      "description": {
+        "en": "Last known status of your address, to use in the next actions.",
+        "fr": "Dernier statut connu de votre adresse, à utiliser dans les actions suivantes.",
+        "de": "Letzter bekannter Status Ihrer Adresse, für die folgenden Aktionen.",
+        "es": "Último estado conocido de su dirección, para las acciones siguientes."
+      },
+      "timeout_seconds": 10,
+      "outputs": [
+        {
+          "key": "outage",
+          "type": "boolean",
+          "label": {
+            "en": "Outage in progress",
+            "fr": "Panne en cours",
+            "de": "Störung im Gange",
+            "es": "Avería en curso"
+          }
+        },
+        {
+          "key": "planned_interruption",
+          "type": "boolean",
+          "label": {
+            "en": "Planned works in progress",
+            "fr": "Travaux en cours",
+            "de": "Arbeiten im Gange",
+            "es": "Trabajos en curso"
+          }
+        },
+        {
+          "key": "upcoming_interruption",
+          "type": "boolean",
+          "label": {
+            "en": "Upcoming planned works",
+            "fr": "Travaux à venir",
+            "de": "Bevorstehende Arbeiten",
+            "es": "Trabajos próximos"
+          }
+        },
+        {
+          "key": "commune_incidents",
+          "type": "number",
+          "label": {
+            "en": "Incidents in the municipality",
+            "fr": "Incidents dans la commune",
+            "de": "Vorfälle in der Gemeinde",
+            "es": "Incidencias en el municipio"
+          }
+        },
+        {
+          "key": "reference",
+          "type": "string",
+          "label": {
+            "en": "ORES reference",
+            "fr": "Référence ORES",
+            "de": "ORES-Referenz",
+            "es": "Referencia ORES"
+          }
+        },
+        {
+          "key": "end_time",
+          "type": "string",
+          "label": {
+            "en": "Expected end (ISO)",
+            "fr": "Fin prévue (ISO)",
+            "de": "Voraussichtliches Ende (ISO)",
+            "es": "Fin previsto (ISO)"
+          }
+        },
+        {
+          "key": "next_start_time",
+          "type": "string",
+          "label": {
+            "en": "Next works start (ISO)",
+            "fr": "Début des prochains travaux (ISO)",
+            "de": "Beginn der nächsten Arbeiten (ISO)",
+            "es": "Inicio de los próximos trabajos (ISO)"
+          }
+        }
+      ]
+    }
+  ],
+  "widgets": [
+    {
+      "key": "network_status",
+      "label": {
+        "en": "ORES network status",
+        "fr": "Statut du réseau ORES",
+        "de": "ORES-Netzstatus",
+        "es": "Estado de la red ORES"
+      },
+      "description": {
+        "en": "Outages and planned works at your address and in your municipality.",
+        "fr": "Pannes et travaux planifiés à votre adresse et dans votre commune.",
+        "de": "Störungen und geplante Arbeiten an Ihrer Adresse und in Ihrer Gemeinde.",
+        "es": "Averías y trabajos previstos en su dirección y en su municipio."
+      },
+      "icon": "zap",
+      "action_timeout_seconds": 30
+    }
+  ]
+}
