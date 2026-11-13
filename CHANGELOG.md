@@ -10,6 +10,8 @@ GitHub Release.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-13
+
 ### Added
 
 - The home is now, by default, the Gladys house: its coordinates are turned once into a
@@ -50,5 +52,6 @@ GitHub Release.
 - The "Test the ORES outage map" action counted the incidents against the system clock
   instead of the service clock (tests failed once the fixture date was past).
 
-[Unreleased]: https://github.com/gboulvin/Gladys-ORES/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/gboulvin/Gladys-ORES/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/gboulvin/Gladys-ORES/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/gboulvin/Gladys-ORES/releases/tag/v0.1.0
