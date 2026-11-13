@@ -38,8 +38,12 @@ ORES directly).
 ## What the integration handles
 
 - It downloads the public ORES outage map, without any account or credential.
-- The address you configure stays in your Gladys: the matching runs locally and
-  the address is never sent to ORES nor written to the logs.
+- The addresses you configure stay in your Gladys: the matching runs locally and
+  they are never sent to ORES nor written to the logs.
+- In "Gladys house" mode, the integration reads the house coordinates (manifest
+  `location: true`) and sends them once to OpenStreetMap Nominatim to find the
+  postal address; the result is cached under `/data`. A leak of these
+  coordinates or of the address anywhere else is a vulnerability.
 - Its only writable location is `/data`, where it keeps the last known network
   status.
 

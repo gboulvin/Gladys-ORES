@@ -20,3 +20,12 @@ test('normalizeConfig coerces and bounds the numbers coming from a form', () => 
   assert.equal(normalizeConfig({ poll_frequency: 5 }).poll_frequency, 60);
   assert.equal(normalizeConfig({ poll_frequency: 'abc' }).poll_frequency, 300);
 });
+
+test('the home is the Gladys house by default, a 0.1 config keeps its typed address', () => {
+  assert.equal(normalizeConfig().address_source, 'house');
+  assert.equal(normalizeConfig({ zip_code: '5000' }).address_source, 'manual');
+  assert.equal(
+    normalizeConfig({ zip_code: '5000', address_source: 'house' }).address_source,
+    'house',
+  );
+});

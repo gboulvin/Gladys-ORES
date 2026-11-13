@@ -11,8 +11,10 @@ build step) running in its own sandboxed Docker container, talking to Gladys thr
 [`@gladysassistant/integration-sdk`](https://github.com/GladysAssistant/integration-sdk-js),
 its only runtime dependency. Started from the official JavaScript template.
 
-Today it reports the **network status** (outages, planned works, delays) of the configured
-address, from the public ORES outage map. **Consumption** (gas, electricity) is planned
+Today it reports the **network status** (outages, planned works, delays) of two address
+slots, from the public ORES outage map: `primary` (the home: the Gladys house reverse-geocoded
+through OpenStreetMap Nominatim, or an address typed by hand) and `secondary` (an optional
+second address typed by hand). **Consumption** (gas, electricity) is planned
 through the my.ores.be portal and not implemented yet: that portal has no public API, the
 itsme / eID sign-in cannot be automated (never try to work around it), and the SPA refresh
 tokens it issues last 24 h without sliding. Only the e-mail / password sign-in may work.
@@ -39,8 +41,10 @@ index.js                     SDK wiring only: handlers registered before connect
 src/ores/breakdownApi.js     GET https://ores-breakdownmapapi-prd.azurewebsites.net/breakdown
 src/ores/incidents.js        PURE: date parsing, name/house-number matching, classification
 src/ores/monitor.js          baseline + diff -> scene events; summary of a snapshot
-src/service.js               refresh timer, states, events, widget nudge, connection status
-src/devices/networkStatus.js device + 4 binary features (energy-sensor / binary)
+src/service.js               refresh timer, per-slot monitors, states, events, connection status
+src/addresses.js             slots (primary/secondary), Gladys house -> address resolution
+src/geo/geocoder.js          Nominatim reverse geocoding (once per coordinates, cached in /data)
+src/devices/networkStatus.js one device per slot + 4 binary features (energy-sensor / binary)
 src/scenes.js                scene actions (read-only)
 src/widgets.js               dashboard widget
 src/actions.js               Configuration screen actions
@@ -62,8 +66,9 @@ ended unless delayed and recently updated. Read every field defensively. Cache t
 
 ## Rules
 
-- **External ids are forever.** Device `network-status` / platform id `address`, its
-  feature keys, the manifest `config_schema` / `actions` / `scene_triggers` /
+- **External ids are forever.** Device `network-status` / platform ids `address` (primary)
+  and `address-2` (secondary), the feature keys, the slot keys `primary` / `secondary` (scene
+  event `address` data, widget and scene action settings), the manifest `config_schema` / `actions` / `scene_triggers` /
   `scene_actions` / `widgets` keys and the scene event data keys: never rename them.
 - **Scene events**: one per transition (`diffIncidents`), never on the seed read, flat
   primitive data limited to the keys the trigger declares (`fields` + `variables`). Scene
@@ -80,6 +85,10 @@ ended unless delayed and recently updated. Read every field defensively. Cache t
   manifest texts (`{ en, fr, de, es }` objects, never plain strings), `src/i18n.js`
   messages, `docs/{en,fr,de,es}.md`. `test/i18n.test.js` enforces it. The catalog
   `description` holds 10 to 100 characters per language.
+- **Gladys version**: keep `>=5.1.0`. A `source: "houses"` select would need 5.2.0: the house
+  is picked by name (`house_name`) through `getHouses()` instead.
+- **Nominatim policy**: identifying User-Agent, one request per coordinates (cached), a failed
+  lookup retried at most once an hour. Never log coordinates nor addresses.
 - **Transport tag** is `cloud` (manifest `transports`). Add `local` only with a real local
   channel.
 - **Style.** Prettier formats, ESLint catches mistakes. Comments explain why, in English.

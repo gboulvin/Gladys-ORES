@@ -10,6 +10,21 @@ GitHub Release.
 
 ## [Unreleased]
 
+### Added
+
+- The home is now, by default, the Gladys house: its coordinates are turned once into a
+  postal address through OpenStreetMap Nominatim (cached under `/data`). The manifest asks
+  for the house location (`location: true`). The address typed by hand stays available.
+- An optional second address (second home, relatives...), with its own name and device.
+- Scene triggers: an "Address" filter (home / second address). Scene action "Get the ORES
+  network status": an "Address" field. Widget: an "Address" setting.
+- The "Test the ORES outage map" action shows the address watched for each slot.
+
+### Changed
+
+- A configuration saved with version 0.1 (typed zip code, no address source) keeps watching
+  the typed address.
+
 ## [0.1.0] - 2026-11-13
 
 ### Added

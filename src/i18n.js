@@ -17,10 +17,22 @@ const TIME_ZONE = 'Europe/Brussels';
 
 const MESSAGES = {
   noAddress: {
-    en: 'Enter your zip code in the configuration.',
-    fr: 'Indiquez votre code postal dans la configuration.',
-    de: 'Geben Sie Ihre Postleitzahl in der Konfiguration ein.',
-    es: 'Indique su código postal en la configuración.',
+    en: 'Enter the zip code of your address in the configuration.',
+    fr: 'Indiquez le code postal de votre adresse dans la configuration.',
+    de: 'Geben Sie die Postleitzahl Ihrer Adresse in der Konfiguration ein.',
+    es: 'Indique el código postal de su dirección en la configuración.',
+  },
+  noHouse: {
+    en: 'No located Gladys house: set its location in Gladys, or type your address in the configuration.',
+    fr: 'Aucune maison Gladys localisée : placez-la sur la carte dans Gladys, ou saisissez votre adresse dans la configuration.',
+    de: 'Kein verortetes Gladys-Haus: Legen Sie seinen Standort in Gladys fest oder geben Sie Ihre Adresse in der Konfiguration ein.',
+    es: 'Ninguna casa de Gladys ubicada: indique su ubicación en Gladys o escriba su dirección en la configuración.',
+  },
+  geocodingFailed: {
+    en: 'The address of your Gladys house could not be found, retrying in an hour. You can type it in the configuration.',
+    fr: "L'adresse de votre maison Gladys est introuvable, nouvel essai dans une heure. Vous pouvez la saisir dans la configuration.",
+    de: 'Die Adresse Ihres Gladys-Hauses wurde nicht gefunden, neuer Versuch in einer Stunde. Sie können sie in der Konfiguration eingeben.',
+    es: 'No se encontró la dirección de su casa de Gladys, nuevo intento en una hora. Puede escribirla en la configuración.',
   },
   mapUnreachable: {
     en: 'ORES outage map unreachable, retrying at the next refresh.',
@@ -29,10 +41,29 @@ const MESSAGES = {
     es: 'Mapa de averías de ORES inaccesible, nuevo intento en la próxima actualización.',
   },
   testOk: {
-    en: 'ORES outage map reached: {total} incidents on the network, {commune} in your municipality.',
-    fr: 'Carte des pannes ORES joignable : {total} incidents sur le réseau, {commune} dans votre commune.',
-    de: 'ORES-Störungskarte erreichbar: {total} Vorfälle im Netz, {commune} in Ihrer Gemeinde.',
-    es: 'Mapa de averías de ORES accesible: {total} incidencias en la red, {commune} en su municipio.',
+    en: 'ORES outage map reached: {total} incidents on the network. {details}',
+    fr: 'Carte des pannes ORES joignable : {total} incidents sur le réseau. {details}',
+    de: 'ORES-Störungskarte erreichbar: {total} Vorfälle im Netz. {details}',
+    es: 'Mapa de averías de ORES accesible: {total} incidencias en la red. {details}',
+  },
+  testAddress: {
+    en: '{name} ({address}): {count} incident(s) in progress.',
+    fr: '{name} ({address}) : {count} incident(s) en cours.',
+    de: '{name} ({address}): {count} laufende(r) Vorfall/Vorfälle.',
+    es: '{name} ({address}): {count} incidencia(s) en curso.',
+  },
+  testAddressMissing: {
+    en: '{name}: address unknown.',
+    fr: '{name} : adresse inconnue.',
+    de: '{name}: Adresse unbekannt.',
+    es: '{name}: dirección desconocida.',
+  },
+  home: { en: 'Home', fr: 'Domicile', de: 'Zuhause', es: 'Domicilio' },
+  secondAddress: {
+    en: 'Second address',
+    fr: 'Seconde adresse',
+    de: 'Zweite Adresse',
+    es: 'Segunda dirección',
   },
   testFailed: {
     en: 'ORES outage map unreachable: {error}',

@@ -1,19 +1,20 @@
 // -----------------------------------------------------------------------------
-// Device registry.
-//
-// Each device type lives in its own file and exposes:
-//   - key                        : short identifier (used in logs)
-//   - deviceExternalId(gladys)   : the device external_id
-//   - buildDevice(gladys, config): the discovery payload sent to Gladys
+// Device registry: one "ORES network status" device per watched address.
 // -----------------------------------------------------------------------------
 
+import { hasSecondary, SLOTS } from '../addresses.js';
 import { networkStatus } from './networkStatus.js';
 
-export const DEVICE_BLUEPRINTS = [networkStatus];
+/** The address slots that have a device, in order. */
+export function activeSlots(config) {
+  return hasSecondary(config) ? [SLOTS.PRIMARY, SLOTS.SECONDARY] : [SLOTS.PRIMARY];
+}
 
 /**
  * Build the discovery payload for Gladys (all devices).
  */
 export function buildDiscoveredDevices(gladys, config) {
-  return DEVICE_BLUEPRINTS.map((bp) => bp.buildDevice(gladys, config));
+  return activeSlots(config).map((slot) =>
+    networkStatus.buildDevice(gladys, slot, slot === SLOTS.SECONDARY ? config.second_name : ''),
+  );
 }

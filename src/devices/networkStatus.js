@@ -1,7 +1,8 @@
 // -----------------------------------------------------------------------------
 // Device: ORES NETWORK STATUS
 //
-// One read-only device per installation, fed by the network monitor (see
+// One read-only device per watched address (see src/addresses.js), fed by the
+// network monitor (see
 // src/ores/monitor.js) at the refresh interval of the configuration. Its
 // binary features drive the standard "device state" scene triggers and the
 // dashboard; the richer details (reference, end time, customers) travel with
@@ -12,12 +13,22 @@
 // -----------------------------------------------------------------------------
 
 import { DEVICE_FEATURE_CATEGORIES, DEVICE_FEATURE_TYPES } from '@gladysassistant/integration-sdk';
+import { SLOTS } from '../addresses.js';
 
 const DEVICE_TYPE = 'network-status';
 
-// The outage map gives no id to "the user's connection": the device stands for
-// the installation itself. Never change it: Gladys keys the history on it.
-const PLATFORM_DEVICE_ID = 'address';
+// The outage map gives no id to "the user's connection": each device stands
+// for one watched address slot. Never change them: Gladys keys the history on
+// them (`address` predates the second slot, hence the asymmetry).
+const PLATFORM_DEVICE_IDS = { [SLOTS.PRIMARY]: 'address', [SLOTS.SECONDARY]: 'address-2' };
+
+const DEVICE_NAMES = {
+  [SLOTS.PRIMARY]: 'ORES network status',
+  [SLOTS.SECONDARY]: 'ORES network status (second address)',
+};
+
+const idsOf = (gladys, slot = SLOTS.PRIMARY) =>
+  gladys.externalIds(DEVICE_TYPE, PLATFORM_DEVICE_IDS[slot]);
 
 export const FEATURE = {
   OUTAGE: 'outage',
@@ -43,18 +54,20 @@ const binaryFeature = (ids, key, name) => ({
 export const networkStatus = {
   key: DEVICE_TYPE,
 
-  deviceExternalId(gladys) {
-    return gladys.externalIds(DEVICE_TYPE, PLATFORM_DEVICE_ID).device;
+  deviceExternalId(gladys, slot = SLOTS.PRIMARY) {
+    return idsOf(gladys, slot).device;
   },
 
-  featureExternalId(gladys, feature) {
-    return gladys.externalIds(DEVICE_TYPE, PLATFORM_DEVICE_ID).feature(feature);
+  featureExternalId(gladys, feature, slot = SLOTS.PRIMARY) {
+    return idsOf(gladys, slot).feature(feature);
   },
 
-  buildDevice(gladys) {
-    const ids = gladys.externalIds(DEVICE_TYPE, PLATFORM_DEVICE_ID);
+  /** @param {string} [name] user label of the second address */
+  buildDevice(gladys, slot = SLOTS.PRIMARY, name = '') {
+    const ids = idsOf(gladys, slot);
+    const label = slot === SLOTS.SECONDARY && name ? `ORES network status (${name})` : '';
     return {
-      name: 'ORES network status',
+      name: label || DEVICE_NAMES[slot],
       external_id: ids.device,
       features: [
         binaryFeature(ids, FEATURE.OUTAGE, 'Outage at my address'),
@@ -69,7 +82,7 @@ export const networkStatus = {
    * Publish the binary states of a monitor snapshot. Only the changed values
    * are sent, plus a heartbeat every 30 minutes.
    */
-  async publishSnapshot(gladys, snapshot) {
+  async publishSnapshot(gladys, snapshot, slot = SLOTS.PRIMARY) {
     const { summary } = snapshot;
     const states = [
       [FEATURE.OUTAGE, summary.outage],
@@ -77,7 +90,7 @@ export const networkStatus = {
       [FEATURE.UPCOMING, summary.upcoming],
       [FEATURE.COMMUNE_INCIDENT, summary.communeInProgress > 0],
     ].map(([feature, value]) => ({
-      device_feature_external_id: this.featureExternalId(gladys, feature),
+      device_feature_external_id: this.featureExternalId(gladys, feature, slot),
       state: value ? 1 : 0,
     }));
     await gladys.publishChangedStates(states, { heartbeat: STATE_HEARTBEAT_MS });

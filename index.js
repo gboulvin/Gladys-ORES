@@ -29,7 +29,7 @@ let config = normalizeConfig();
 const service = createOresService({
   gladys,
   getConfig: () => config,
-  storage: createJsonStore('network-status.json'),
+  createStorage: (name) => createJsonStore(name),
   onWidgetsChanged: () => refreshWidgets(gladys),
 });
 
@@ -64,6 +64,10 @@ for (const [widgetKey, widget] of Object.entries(WIDGETS)) {
 gladys.onConfigUpdated(async (newConfig) => {
   logger.info('onConfigUpdated -> new configuration received');
   config = normalizeConfig(newConfig);
+  // A second address may have appeared or been renamed: re-publish the devices
+  // (an idempotent upsert by external_id).
+  await gladys.publishDiscoveredDevices(buildDiscoveredDevices(gladys, config));
+  service.invalidateHouses();
   // New address or new interval: restart the timer and read the map now.
   await service.start();
 });
@@ -72,6 +76,8 @@ gladys.onConfigUpdated(async (newConfig) => {
 gladys.on('connected', async () => {
   try {
     config = normalizeConfig(await gladys.getConfig());
+    // The house may have moved while disconnected: re-read the houses.
+    service.invalidateHouses();
     await gladys.publishDiscoveredDevices(buildDiscoveredDevices(gladys, config));
     // Reads the map now, publishes the states and the connection status, then
     // every `poll_frequency` seconds.

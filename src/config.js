@@ -11,11 +11,23 @@
 // Defaults: they MUST stay consistent with the `default` values declared in
 // the `config_schema` of the manifest (checked by test/manifest.test.js).
 export const DEFAULT_CONFIG = {
-  // Address watched on the ORES network. Only the zip code is required.
+  // Home address: the Gladys house (reverse-geocoded) or the address typed
+  // below ('house' | 'manual').
+  address_source: 'house',
+  // Name of the Gladys house when there are several (empty: the first located).
+  house_name: '',
+  // Home address typed by hand (address_source: manual). Zip code required.
   zip_code: '',
   city: '',
   street: '',
   house_number: '',
+  // Optional second address (second home, relatives...): on when it has a
+  // zip code.
+  second_name: '',
+  second_zip_code: '',
+  second_city: '',
+  second_street: '',
+  second_house_number: '',
   // Planned works announced further ahead than this are ignored.
   planned_horizon_days: 7,
   // Seconds between two reads of the ORES outage map.
@@ -23,6 +35,28 @@ export const DEFAULT_CONFIG = {
 };
 
 const MIN_POLL_SECONDS = 60;
+
+const TEXT_KEYS = [
+  'house_name',
+  'zip_code',
+  'city',
+  'street',
+  'house_number',
+  'second_name',
+  'second_zip_code',
+  'second_city',
+  'second_street',
+  'second_house_number',
+];
+
+// Version 0.1 had no address source and watched the typed address: a config
+// saved then (zip code filled, no source) keeps watching it.
+function addressSource(raw, texts) {
+  if (raw.address_source === 'house' || raw.address_source === 'manual') {
+    return raw.address_source;
+  }
+  return texts.zip_code ? 'manual' : DEFAULT_CONFIG.address_source;
+}
 
 const text = (value) => (value === undefined || value === null ? '' : String(value).trim());
 
@@ -39,13 +73,14 @@ function boundedNumber(value, fallback, min, max) {
  * @param {Record<string, unknown>} raw config returned by the SDK
  */
 export function normalizeConfig(raw = {}) {
+  const texts = Object.fromEntries(
+    TEXT_KEYS.map((key) => [key, text(raw[key] ?? DEFAULT_CONFIG[key])]),
+  );
   return {
     ...DEFAULT_CONFIG,
     ...raw,
-    zip_code: text(raw.zip_code ?? DEFAULT_CONFIG.zip_code),
-    city: text(raw.city ?? DEFAULT_CONFIG.city),
-    street: text(raw.street ?? DEFAULT_CONFIG.street),
-    house_number: text(raw.house_number ?? DEFAULT_CONFIG.house_number),
+    ...texts,
+    address_source: addressSource(raw, texts),
     planned_horizon_days: boundedNumber(
       raw.planned_horizon_days,
       DEFAULT_CONFIG.planned_horizon_days,

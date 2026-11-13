@@ -143,7 +143,12 @@ export function createMonitor({ fetchIncidents, storage, clock = () => new Date(
       const key = addressKey(config);
       const now = clock();
       if (!config.zip_code) {
-        state = { addressKey: key, incidents: [], fetchedAt: null, error: 'no_address' };
+        state = {
+          addressKey: key,
+          incidents: [],
+          fetchedAt: null,
+          error: config.address_error ?? 'no_address',
+        };
         return { events: [], snapshot: this.getSnapshot() };
       }
       let raw;

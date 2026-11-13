@@ -3,8 +3,8 @@
 //
 // - check_address       incidents of ANY address (a second home, a relative),
 //                        read straight from the outage map;
-// - get_network_status  the last known status of the configured address,
-//                        without any network call.
+// - get_network_status  the last known status of the home or of the second
+//                        address, without any network call.
 //
 // Both are read-only: they never publish a state nor a scene event (an event
 // fired by a scene action could loop through the scene). A scene action is
@@ -15,6 +15,7 @@
 // -----------------------------------------------------------------------------
 
 import { createLogger } from '@gladysassistant/integration-sdk';
+import { SLOTS } from './addresses.js';
 
 const logger = createLogger({ name: 'scenes' });
 
@@ -47,8 +48,10 @@ export const SCENE_ACTIONS = {
     return statusOutputs(summary);
   },
 
-  async get_network_status(gladys, { service }) {
-    logger.info('Scene action get_network_status');
-    return statusOutputs(service.getSnapshot().summary);
+  // `address`: the slot ('primary' home, 'secondary' second address).
+  async get_network_status(gladys, { fields, service }) {
+    const slot = fields?.address === SLOTS.SECONDARY ? SLOTS.SECONDARY : SLOTS.PRIMARY;
+    logger.info(`Scene action get_network_status <- ${slot}`);
+    return statusOutputs(service.getSnapshot(slot).summary);
   },
 };

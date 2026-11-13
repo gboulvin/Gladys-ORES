@@ -1,7 +1,8 @@
 # ORES — Gladys Assistant integration
 
 External integration for [Gladys Assistant](https://gladysassistant.com) that watches the
-**ORES** distribution network (Wallonia, Belgium) for your address: outages in progress,
+**ORES** distribution network (Wallonia, Belgium) at your home (the Gladys house, or an
+address typed by hand) and at an optional second address: outages in progress,
 planned works with a power cut, announced delays. Built from the official
 [JavaScript template](https://github.com/GladysAssistant/integration-template-js) with
 [`@gladysassistant/integration-sdk`](https://github.com/GladysAssistant/integration-sdk-js).
@@ -13,19 +14,21 @@ planned works with a power cut, announced delays. Built from the official
 - **Transport tag:** `cloud`.
 - **Languages:** English, French, German, Spanish (manifest, messages, widget, docs).
 - **Gladys:** 5.1.0 or later (scene triggers, scene actions and widgets).
+- **House location:** requested (`location: true`); the coordinates are reverse-geocoded once
+  through OpenStreetMap Nominatim. Type the address by hand to avoid it.
 
 User documentation: [English](docs/en.md) · [Français](docs/fr.md) · [Deutsch](docs/de.md) ·
 [Español](docs/es.md).
 
 ## Features
 
-| Surface        | What                                                                                                                       |
-| -------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| Device         | `ORES network status`: outage / planned works / upcoming works at my address, incident in my municipality (binary sensors) |
-| Scene triggers | `outage_started`, `outage_ended`, `outage_delayed`, `interruption_scheduled` (filters: type, where)                        |
-| Scene actions  | `check_address` (any address), `get_network_status` (last known status of yours)                                           |
-| Widget         | `network_status`: live tiles, status rows, incident list, refresh button                                                   |
-| Config action  | `test_connection`: reach the outage map and count the incidents                                                            |
+| Surface        | What                                                                                                                                          |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Device         | `ORES network status`, one per address: outage / planned works / upcoming works at the address, incident in the municipality (binary sensors) |
+| Scene triggers | `outage_started`, `outage_ended`, `outage_delayed`, `interruption_scheduled` (filters: address, type, where)                                  |
+| Scene actions  | `check_address` (any address), `get_network_status` (last known status of yours)                                                              |
+| Widget         | `network_status`: live tiles, status rows, incident list, refresh button                                                                      |
+| Config action  | `test_connection`: reach the outage map and count the incidents                                                                               |
 
 Gas and electricity consumption are **not** implemented yet: my.ores.be has no public API
 and its itsme / eID sign-in cannot be automated. See [CHANGELOG.md](CHANGELOG.md).
@@ -38,6 +41,8 @@ src/ores/breakdownApi.js     ORES outage map client (public endpoint)
 src/ores/incidents.js        pure logic: dates, address matching, classification
 src/ores/monitor.js          baseline + transitions -> scene events
 src/service.js               refresh loop: states, events, widget nudge, connection status
+src/addresses.js             address slots (home, second address), Gladys house resolution
+src/geo/geocoder.js          OpenStreetMap Nominatim reverse geocoding of the house
 src/devices/networkStatus.js the device and its binary features
 src/scenes.js                scene action handlers
 src/widgets.js               dashboard widget

@@ -14,6 +14,8 @@ import { createLogger, WIDGET_COLORS } from '@gladysassistant/integration-sdk';
 import { networkStatus, FEATURE } from './devices/networkStatus.js';
 import { INCIDENT_KINDS, INCIDENT_PHASES } from './ores/incidents.js';
 import { formatDate, ml, tr } from './i18n.js';
+import { hasSecondary, SLOTS } from './addresses.js';
+import { slotName } from './actions.js';
 
 const logger = createLogger({ name: 'widgets' });
 
@@ -74,7 +76,10 @@ function incidentCard(incident, language) {
 }
 
 /** Content of the widget, from a monitor snapshot. */
-export function buildNetworkStatusContent(gladys, { snapshot, language, configured }) {
+export function buildNetworkStatusContent(
+  gladys,
+  { snapshot, language, configured, slot = SLOTS.PRIMARY, name },
+) {
   const { summary, incidents } = snapshot;
   const tiles = [
     [FEATURE.OUTAGE, 'statusOutage', 'zap-off'],
@@ -83,7 +88,7 @@ export function buildNetworkStatusContent(gladys, { snapshot, language, configur
     type: 'value',
     label: tr(language, label).slice(0, 24),
     icon,
-    device_feature: networkStatus.featureExternalId(gladys, feature),
+    device_feature: networkStatus.featureExternalId(gladys, feature, slot),
   }));
 
   let address;
@@ -107,7 +112,7 @@ export function buildNetworkStatusContent(gladys, { snapshot, language, configur
     {
       type: 'status',
       items: [
-        { label: tr(language, 'myAddress'), icon: 'home', ...address },
+        { label: (name ?? tr(language, 'myAddress')).slice(0, 40), icon: 'home', ...address },
         {
           label: tr(language, 'municipality'),
           icon: 'map',
@@ -137,12 +142,20 @@ export function buildNetworkStatusContent(gladys, { snapshot, language, configur
 
 export const WIDGETS = {
   [NETWORK_STATUS_WIDGET]: {
-    async get(gladys, { language, config, service }) {
-      logger.debug(`onWidgetGet <- ${NETWORK_STATUS_WIDGET}`);
+    // `settings.address`: which address this widget instance shows.
+    async get(gladys, { settings, language, config, service }) {
+      const slot =
+        settings?.address === SLOTS.SECONDARY && hasSecondary(config)
+          ? SLOTS.SECONDARY
+          : SLOTS.PRIMARY;
+      logger.debug(`onWidgetGet <- ${NETWORK_STATUS_WIDGET} (${slot})`);
+      const { error } = service.getAddress(slot);
       return buildNetworkStatusContent(gladys, {
-        snapshot: service.getSnapshot(),
+        snapshot: service.getSnapshot(slot),
         language,
-        configured: Boolean(config.zip_code),
+        configured: !['no_address', 'no_house', 'geocoding'].includes(error),
+        slot,
+        name: slotName(language, slot, config),
       });
     },
 

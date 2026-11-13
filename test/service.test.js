@@ -88,7 +88,7 @@ test('an unreachable map flags the connection without clearing the states', asyn
 });
 
 test('no zip code: the connection status asks for it', async () => {
-  const { gladys, service, state } = setup({ config: {} });
+  const { gladys, service, state } = setup({ config: { address_source: 'manual' } });
   await service.refresh();
   assert.equal(state.calls, 0);
   assert.equal(gladys.fake.connectionStatus.connected, false);
@@ -107,14 +107,21 @@ test('the raw map is cached one minute', async () => {
 
 test('the test action answers in the four languages', async () => {
   const { gladys, service } = setup();
-  const message = await ACTIONS.test_connection(gladys, { service });
+  const message = await ACTIONS.test_connection(gladys, {
+    service,
+    config: normalizeConfig(ADDRESS),
+  });
   assert.deepEqual(Object.keys(message).sort(), ['de', 'en', 'es', 'fr']);
-  assert.match(message.en, /2 incidents on the network, 1 in your municipality/);
+  assert.match(message.en, /2 incidents on the network/);
+  assert.match(message.fr, /Domicile \(5000 Rue de l'Église 12\) : 1 incident\(s\) en cours/);
 });
 
 test('the test action reports an unreachable map', async () => {
   const { gladys, service, state } = setup();
   state.fail = true;
-  const message = await ACTIONS.test_connection(gladys, { service });
+  const message = await ACTIONS.test_connection(gladys, {
+    service,
+    config: normalizeConfig(ADDRESS),
+  });
   assert.match(message.fr, /injoignable/);
 });

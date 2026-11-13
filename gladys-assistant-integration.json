@@ -14,21 +14,22 @@
   "cover_image": "https://raw.githubusercontent.com/gboulvin/Gladys-ORES/main/cover.png",
   "categories": ["energy", "services"],
   "transports": ["cloud"],
+  "location": true,
   "config_schema": [
     {
       "key": "intro",
       "type": "section",
       "label": {
-        "en": "Your address on the ORES network",
-        "fr": "Votre adresse sur le réseau ORES",
-        "de": "Ihre Adresse im ORES-Netz",
-        "es": "Su dirección en la red ORES"
+        "en": "Watched addresses",
+        "fr": "Adresses surveillées",
+        "de": "Überwachte Adressen",
+        "es": "Direcciones vigiladas"
       },
       "description": {
-        "en": "The integration reads the public ORES outage map every few minutes and watches the address below. Only the zip code is required: add the street (and the house number) to know whether YOUR home is impacted, not only your municipality. Unofficial integration, not affiliated with ORES.",
-        "fr": "L'intégration lit la carte publique des pannes ORES toutes les quelques minutes et surveille l'adresse ci-dessous. Seul le code postal est obligatoire : ajoutez la rue (et le numéro) pour savoir si VOTRE logement est touché, et pas seulement votre commune. Intégration non officielle, sans lien avec ORES.",
-        "de": "Die Integration liest alle paar Minuten die öffentliche ORES-Störungskarte und überwacht die untenstehende Adresse. Nur die Postleitzahl ist erforderlich: Geben Sie die Straße (und die Hausnummer) an, um zu wissen, ob IHR Zuhause betroffen ist, nicht nur Ihre Gemeinde. Inoffizielle Integration, nicht mit ORES verbunden.",
-        "es": "La integración lee el mapa público de averías de ORES cada pocos minutos y vigila la dirección indicada. Solo el código postal es obligatorio: añada la calle (y el número) para saber si SU vivienda está afectada, y no solo su municipio. Integración no oficial, sin relación con ORES."
+        "en": "The integration reads the public ORES outage map every few minutes and watches your home and, optionally, a second address. By default the home is your Gladys house: its coordinates are turned into a postal address ONCE through OpenStreetMap (Nominatim), then cached. Prefer typing it? Choose \"Address typed below\". Unofficial integration, not affiliated with ORES.",
+        "fr": "L'intégration lit la carte publique des pannes ORES toutes les quelques minutes et surveille votre domicile et, si vous le souhaitez, une seconde adresse. Par défaut, le domicile est votre maison Gladys : ses coordonnées sont converties UNE fois en adresse postale via OpenStreetMap (Nominatim), puis mises en cache. Vous préférez la saisir ? Choisissez « Adresse saisie ci-dessous ». Intégration non officielle, sans lien avec ORES.",
+        "de": "Die Integration liest alle paar Minuten die öffentliche ORES-Störungskarte und überwacht Ihr Zuhause und optional eine zweite Adresse. Standardmäßig ist das Zuhause Ihr Gladys-Haus: Seine Koordinaten werden EINMAL über OpenStreetMap (Nominatim) in eine Postadresse umgewandelt und dann zwischengespeichert. Lieber selbst eingeben? Wählen Sie „Unten eingegebene Adresse“. Inoffizielle Integration, nicht mit ORES verbunden.",
+        "es": "La integración lee el mapa público de averías de ORES cada pocos minutos y vigila su domicilio y, opcionalmente, una segunda dirección. Por defecto, el domicilio es su casa de Gladys: sus coordenadas se convierten UNA vez en dirección postal mediante OpenStreetMap (Nominatim) y se guardan en caché. ¿Prefiere escribirla? Elija «Dirección indicada abajo». Integración no oficial, sin relación con ORES."
       },
       "links": [
         {
@@ -39,8 +40,94 @@
             "de": "ORES-Störungen und Unterbrechungen",
             "es": "Averías e interrupciones ORES"
           }
+        },
+        {
+          "url": "https://operations.osmfoundation.org/policies/nominatim/",
+          "label": {
+            "en": "OpenStreetMap Nominatim policy",
+            "fr": "Politique de Nominatim (OpenStreetMap)",
+            "de": "Nominatim-Richtlinie (OpenStreetMap)",
+            "es": "Política de Nominatim (OpenStreetMap)"
+          }
         }
       ]
+    },
+    {
+      "key": "address_source",
+      "type": "select",
+      "label": {
+        "en": "Home address",
+        "fr": "Adresse du domicile",
+        "de": "Adresse des Zuhauses",
+        "es": "Dirección del domicilio"
+      },
+      "description": {
+        "en": "Where the home address comes from.",
+        "fr": "D'où vient l'adresse du domicile.",
+        "de": "Woher die Adresse des Zuhauses stammt.",
+        "es": "De dónde procede la dirección del domicilio."
+      },
+      "required": false,
+      "default": "house",
+      "options": [
+        {
+          "value": "house",
+          "label": {
+            "en": "Gladys house location",
+            "fr": "Position de la maison Gladys",
+            "de": "Standort des Gladys-Hauses",
+            "es": "Ubicación de la casa de Gladys"
+          }
+        },
+        {
+          "value": "manual",
+          "label": {
+            "en": "Address typed below",
+            "fr": "Adresse saisie ci-dessous",
+            "de": "Unten eingegebene Adresse",
+            "es": "Dirección indicada abajo"
+          }
+        }
+      ]
+    },
+    {
+      "key": "house_name",
+      "type": "string",
+      "label": {
+        "en": "Gladys house (optional)",
+        "fr": "Maison Gladys (facultatif)",
+        "de": "Gladys-Haus (optional)",
+        "es": "Casa de Gladys (opcional)"
+      },
+      "description": {
+        "en": "Name of the house to watch when Gladys has several. Empty: the first located house.",
+        "fr": "Nom de la maison à surveiller si Gladys en a plusieurs. Vide : la première maison localisée.",
+        "de": "Name des zu überwachenden Hauses, falls Gladys mehrere hat. Leer: das erste verortete Haus.",
+        "es": "Nombre de la casa a vigilar si Gladys tiene varias. Vacío: la primera casa ubicada."
+      },
+      "placeholder": {
+        "en": "e.g. Home",
+        "fr": "ex. Maison",
+        "de": "z. B. Zuhause",
+        "es": "p. ej. Casa"
+      },
+      "required": false
+    },
+    {
+      "key": "manual_address",
+      "type": "section",
+      "label": {
+        "en": "Home address typed by hand",
+        "fr": "Adresse du domicile saisie à la main",
+        "de": "Manuell eingegebene Adresse des Zuhauses",
+        "es": "Dirección del domicilio escrita a mano"
+      },
+      "description": {
+        "en": "Only used with \"Address typed below\". The zip code is required; add the street (and the house number) to know whether YOUR home is impacted, not only your municipality.",
+        "fr": "Utilisée uniquement avec « Adresse saisie ci-dessous ». Le code postal est obligatoire ; ajoutez la rue (et le numéro) pour savoir si VOTRE logement est touché, et pas seulement votre commune.",
+        "de": "Nur mit „Unten eingegebene Adresse“ verwendet. Die Postleitzahl ist erforderlich; geben Sie die Straße (und die Hausnummer) an, um zu wissen, ob IHR Zuhause betroffen ist, nicht nur Ihre Gemeinde.",
+        "es": "Solo se usa con «Dirección indicada abajo». El código postal es obligatorio; añada la calle (y el número) para saber si SU vivienda está afectada, y no solo su municipio."
+      }
     },
     {
       "key": "zip_code",
@@ -57,7 +144,7 @@
         "de": "z. B. 5000",
         "es": "p. ej. 5000"
       },
-      "required": true
+      "required": false
     },
     {
       "key": "city",
@@ -108,7 +195,119 @@
         "de": "Hausnummer (optional)",
         "es": "Número (opcional)"
       },
-      "placeholder": { "en": "e.g. 12", "fr": "ex. 12", "de": "z. B. 12", "es": "p. ej. 12" },
+      "placeholder": {
+        "en": "e.g. 12",
+        "fr": "ex. 12",
+        "de": "z. B. 12",
+        "es": "p. ej. 12"
+      },
+      "required": false
+    },
+    {
+      "key": "second_address",
+      "type": "section",
+      "label": {
+        "en": "Second address (optional)",
+        "fr": "Seconde adresse (facultatif)",
+        "de": "Zweite Adresse (optional)",
+        "es": "Segunda dirección (opcional)"
+      },
+      "description": {
+        "en": "Another address to watch (second home, relatives...). It gets its own device, and the scene triggers and the widget can target it. Leave the zip code empty to disable it.",
+        "fr": "Une autre adresse à surveiller (seconde résidence, proches...). Elle a son propre appareil, et les déclencheurs de scène et le widget peuvent la cibler. Laissez le code postal vide pour la désactiver.",
+        "de": "Eine weitere zu überwachende Adresse (Zweitwohnung, Angehörige...). Sie erhält ein eigenes Gerät, und die Szenen-Auslöser und das Widget können sie ansprechen. Lassen Sie die Postleitzahl leer, um sie zu deaktivieren.",
+        "es": "Otra dirección a vigilar (segunda residencia, familiares...). Tiene su propio dispositivo, y los disparadores de escena y el widget pueden apuntar a ella. Deje el código postal vacío para desactivarla."
+      }
+    },
+    {
+      "key": "second_name",
+      "type": "string",
+      "label": {
+        "en": "Name",
+        "fr": "Nom",
+        "de": "Name",
+        "es": "Nombre"
+      },
+      "placeholder": {
+        "en": "e.g. Parents",
+        "fr": "ex. Parents",
+        "de": "z. B. Eltern",
+        "es": "p. ej. Padres"
+      },
+      "required": false
+    },
+    {
+      "key": "second_zip_code",
+      "type": "string",
+      "label": {
+        "en": "Zip code",
+        "fr": "Code postal",
+        "de": "Postleitzahl",
+        "es": "Código postal"
+      },
+      "placeholder": {
+        "en": "e.g. 5000",
+        "fr": "ex. 5000",
+        "de": "z. B. 5000",
+        "es": "p. ej. 5000"
+      },
+      "required": false
+    },
+    {
+      "key": "second_city",
+      "type": "string",
+      "label": {
+        "en": "Locality (optional)",
+        "fr": "Localité (facultatif)",
+        "de": "Ortschaft (optional)",
+        "es": "Localidad (opcional)"
+      },
+      "description": {
+        "en": "Only when several localities share your zip code.",
+        "fr": "Uniquement si plusieurs localités partagent votre code postal.",
+        "de": "Nur wenn sich mehrere Ortschaften Ihre Postleitzahl teilen.",
+        "es": "Solo si varias localidades comparten su código postal."
+      },
+      "placeholder": {
+        "en": "e.g. Jambes",
+        "fr": "ex. Jambes",
+        "de": "z. B. Jambes",
+        "es": "p. ej. Jambes"
+      },
+      "required": false
+    },
+    {
+      "key": "second_street",
+      "type": "string",
+      "label": {
+        "en": "Street (optional)",
+        "fr": "Rue (facultatif)",
+        "de": "Straße (optional)",
+        "es": "Calle (opcional)"
+      },
+      "placeholder": {
+        "en": "e.g. Rue de Fer",
+        "fr": "ex. Rue de Fer",
+        "de": "z. B. Rue de Fer",
+        "es": "p. ej. Rue de Fer"
+      },
+      "required": false
+    },
+    {
+      "key": "second_house_number",
+      "type": "string",
+      "label": {
+        "en": "House number (optional)",
+        "fr": "Numéro (facultatif)",
+        "de": "Hausnummer (optional)",
+        "es": "Número (opcional)"
+      },
+      "placeholder": {
+        "en": "e.g. 12",
+        "fr": "ex. 12",
+        "de": "z. B. 12",
+        "es": "p. ej. 12"
+      },
       "required": false
     },
     {
@@ -181,13 +380,53 @@
       },
       "fields": [
         {
+          "key": "address",
+          "type": "multi_select",
+          "label": {
+            "en": "Address",
+            "fr": "Adresse",
+            "de": "Adresse",
+            "es": "Dirección"
+          },
+          "options": [
+            {
+              "value": "primary",
+              "label": {
+                "en": "Home",
+                "fr": "Domicile",
+                "de": "Zuhause",
+                "es": "Domicilio"
+              }
+            },
+            {
+              "value": "secondary",
+              "label": {
+                "en": "Second address",
+                "fr": "Seconde adresse",
+                "de": "Zweite Adresse",
+                "es": "Segunda dirección"
+              }
+            }
+          ]
+        },
+        {
           "key": "kind",
           "type": "multi_select",
-          "label": { "en": "Type", "fr": "Type", "de": "Art", "es": "Tipo" },
+          "label": {
+            "en": "Type",
+            "fr": "Type",
+            "de": "Art",
+            "es": "Tipo"
+          },
           "options": [
             {
               "value": "outage",
-              "label": { "en": "Outage", "fr": "Panne", "de": "Störung", "es": "Avería" }
+              "label": {
+                "en": "Outage",
+                "fr": "Panne",
+                "de": "Störung",
+                "es": "Avería"
+              }
             },
             {
               "value": "planned",
@@ -203,7 +442,12 @@
         {
           "key": "scope",
           "type": "multi_select",
-          "label": { "en": "Where", "fr": "Où", "de": "Wo", "es": "Dónde" },
+          "label": {
+            "en": "Where",
+            "fr": "Où",
+            "de": "Wo",
+            "es": "Dónde"
+          },
           "options": [
             {
               "value": "address",
@@ -240,7 +484,12 @@
         {
           "key": "city",
           "type": "string",
-          "label": { "en": "Locality", "fr": "Localité", "de": "Ortschaft", "es": "Localidad" }
+          "label": {
+            "en": "Locality",
+            "fr": "Localité",
+            "de": "Ortschaft",
+            "es": "Localidad"
+          }
         },
         {
           "key": "start_time",
@@ -290,13 +539,53 @@
       },
       "fields": [
         {
+          "key": "address",
+          "type": "multi_select",
+          "label": {
+            "en": "Address",
+            "fr": "Adresse",
+            "de": "Adresse",
+            "es": "Dirección"
+          },
+          "options": [
+            {
+              "value": "primary",
+              "label": {
+                "en": "Home",
+                "fr": "Domicile",
+                "de": "Zuhause",
+                "es": "Domicilio"
+              }
+            },
+            {
+              "value": "secondary",
+              "label": {
+                "en": "Second address",
+                "fr": "Seconde adresse",
+                "de": "Zweite Adresse",
+                "es": "Segunda dirección"
+              }
+            }
+          ]
+        },
+        {
           "key": "kind",
           "type": "multi_select",
-          "label": { "en": "Type", "fr": "Type", "de": "Art", "es": "Tipo" },
+          "label": {
+            "en": "Type",
+            "fr": "Type",
+            "de": "Art",
+            "es": "Tipo"
+          },
           "options": [
             {
               "value": "outage",
-              "label": { "en": "Outage", "fr": "Panne", "de": "Störung", "es": "Avería" }
+              "label": {
+                "en": "Outage",
+                "fr": "Panne",
+                "de": "Störung",
+                "es": "Avería"
+              }
             },
             {
               "value": "planned",
@@ -312,7 +601,12 @@
         {
           "key": "scope",
           "type": "multi_select",
-          "label": { "en": "Where", "fr": "Où", "de": "Wo", "es": "Dónde" },
+          "label": {
+            "en": "Where",
+            "fr": "Où",
+            "de": "Wo",
+            "es": "Dónde"
+          },
           "options": [
             {
               "value": "address",
@@ -349,7 +643,12 @@
         {
           "key": "city",
           "type": "string",
-          "label": { "en": "Locality", "fr": "Localité", "de": "Ortschaft", "es": "Localidad" }
+          "label": {
+            "en": "Locality",
+            "fr": "Localité",
+            "de": "Ortschaft",
+            "es": "Localidad"
+          }
         },
         {
           "key": "start_time",
@@ -364,7 +663,12 @@
         {
           "key": "end_time",
           "type": "string",
-          "label": { "en": "End (ISO)", "fr": "Fin (ISO)", "de": "Ende (ISO)", "es": "Fin (ISO)" }
+          "label": {
+            "en": "End (ISO)",
+            "fr": "Fin (ISO)",
+            "de": "Ende (ISO)",
+            "es": "Fin (ISO)"
+          }
         },
         {
           "key": "customers",
@@ -394,13 +698,53 @@
       },
       "fields": [
         {
+          "key": "address",
+          "type": "multi_select",
+          "label": {
+            "en": "Address",
+            "fr": "Adresse",
+            "de": "Adresse",
+            "es": "Dirección"
+          },
+          "options": [
+            {
+              "value": "primary",
+              "label": {
+                "en": "Home",
+                "fr": "Domicile",
+                "de": "Zuhause",
+                "es": "Domicilio"
+              }
+            },
+            {
+              "value": "secondary",
+              "label": {
+                "en": "Second address",
+                "fr": "Seconde adresse",
+                "de": "Zweite Adresse",
+                "es": "Segunda dirección"
+              }
+            }
+          ]
+        },
+        {
           "key": "kind",
           "type": "multi_select",
-          "label": { "en": "Type", "fr": "Type", "de": "Art", "es": "Tipo" },
+          "label": {
+            "en": "Type",
+            "fr": "Type",
+            "de": "Art",
+            "es": "Tipo"
+          },
           "options": [
             {
               "value": "outage",
-              "label": { "en": "Outage", "fr": "Panne", "de": "Störung", "es": "Avería" }
+              "label": {
+                "en": "Outage",
+                "fr": "Panne",
+                "de": "Störung",
+                "es": "Avería"
+              }
             },
             {
               "value": "planned",
@@ -416,7 +760,12 @@
         {
           "key": "scope",
           "type": "multi_select",
-          "label": { "en": "Where", "fr": "Où", "de": "Wo", "es": "Dónde" },
+          "label": {
+            "en": "Where",
+            "fr": "Où",
+            "de": "Wo",
+            "es": "Dónde"
+          },
           "options": [
             {
               "value": "address",
@@ -453,7 +802,12 @@
         {
           "key": "city",
           "type": "string",
-          "label": { "en": "Locality", "fr": "Localité", "de": "Ortschaft", "es": "Localidad" }
+          "label": {
+            "en": "Locality",
+            "fr": "Localité",
+            "de": "Ortschaft",
+            "es": "Localidad"
+          }
         },
         {
           "key": "start_time",
@@ -503,9 +857,44 @@
       },
       "fields": [
         {
+          "key": "address",
+          "type": "multi_select",
+          "label": {
+            "en": "Address",
+            "fr": "Adresse",
+            "de": "Adresse",
+            "es": "Dirección"
+          },
+          "options": [
+            {
+              "value": "primary",
+              "label": {
+                "en": "Home",
+                "fr": "Domicile",
+                "de": "Zuhause",
+                "es": "Domicilio"
+              }
+            },
+            {
+              "value": "secondary",
+              "label": {
+                "en": "Second address",
+                "fr": "Seconde adresse",
+                "de": "Zweite Adresse",
+                "es": "Segunda dirección"
+              }
+            }
+          ]
+        },
+        {
           "key": "scope",
           "type": "multi_select",
-          "label": { "en": "Where", "fr": "Où", "de": "Wo", "es": "Dónde" },
+          "label": {
+            "en": "Where",
+            "fr": "Où",
+            "de": "Wo",
+            "es": "Dónde"
+          },
           "options": [
             {
               "value": "address",
@@ -542,7 +931,12 @@
         {
           "key": "city",
           "type": "string",
-          "label": { "en": "Locality", "fr": "Localité", "de": "Ortschaft", "es": "Localidad" }
+          "label": {
+            "en": "Locality",
+            "fr": "Localité",
+            "de": "Ortschaft",
+            "es": "Localidad"
+          }
         },
         {
           "key": "start_time",
@@ -608,17 +1002,32 @@
         {
           "key": "city",
           "type": "string",
-          "label": { "en": "Locality", "fr": "Localité", "de": "Ortschaft", "es": "Localidad" }
+          "label": {
+            "en": "Locality",
+            "fr": "Localité",
+            "de": "Ortschaft",
+            "es": "Localidad"
+          }
         },
         {
           "key": "street",
           "type": "string",
-          "label": { "en": "Street", "fr": "Rue", "de": "Straße", "es": "Calle" }
+          "label": {
+            "en": "Street",
+            "fr": "Rue",
+            "de": "Straße",
+            "es": "Calle"
+          }
         },
         {
           "key": "house_number",
           "type": "string",
-          "label": { "en": "House number", "fr": "Numéro", "de": "Hausnummer", "es": "Número" }
+          "label": {
+            "en": "House number",
+            "fr": "Numéro",
+            "de": "Hausnummer",
+            "es": "Número"
+          }
         }
       ],
       "outputs": [
@@ -703,10 +1112,10 @@
         "es": "Obtener el estado de la red ORES"
       },
       "description": {
-        "en": "Last known status of your address, to use in the next actions.",
-        "fr": "Dernier statut connu de votre adresse, à utiliser dans les actions suivantes.",
-        "de": "Letzter bekannter Status Ihrer Adresse, für die folgenden Aktionen.",
-        "es": "Último estado conocido de su dirección, para las acciones siguientes."
+        "en": "Last known status of your home or second address, for the next actions.",
+        "fr": "Dernier statut connu du domicile ou de la seconde adresse, pour les actions suivantes.",
+        "de": "Letzter bekannter Status des Zuhauses oder der zweiten Adresse, für die folgenden Aktionen.",
+        "es": "Último estado conocido del domicilio o de la segunda dirección, para las acciones siguientes."
       },
       "timeout_seconds": 10,
       "outputs": [
@@ -780,6 +1189,40 @@
             "es": "Inicio de los próximos trabajos (ISO)"
           }
         }
+      ],
+      "fields": [
+        {
+          "key": "address",
+          "type": "select",
+          "label": {
+            "en": "Address",
+            "fr": "Adresse",
+            "de": "Adresse",
+            "es": "Dirección"
+          },
+          "required": false,
+          "default": "primary",
+          "options": [
+            {
+              "value": "primary",
+              "label": {
+                "en": "Home",
+                "fr": "Domicile",
+                "de": "Zuhause",
+                "es": "Domicilio"
+              }
+            },
+            {
+              "value": "secondary",
+              "label": {
+                "en": "Second address",
+                "fr": "Seconde adresse",
+                "de": "Zweite Adresse",
+                "es": "Segunda dirección"
+              }
+            }
+          ]
+        }
       ]
     }
   ],
@@ -799,7 +1242,41 @@
         "es": "Averías y trabajos previstos en su dirección y en su municipio."
       },
       "icon": "zap",
-      "action_timeout_seconds": 30
+      "action_timeout_seconds": 30,
+      "settings": [
+        {
+          "key": "address",
+          "type": "select",
+          "label": {
+            "en": "Address",
+            "fr": "Adresse",
+            "de": "Adresse",
+            "es": "Dirección"
+          },
+          "required": false,
+          "default": "primary",
+          "options": [
+            {
+              "value": "primary",
+              "label": {
+                "en": "Home",
+                "fr": "Domicile",
+                "de": "Zuhause",
+                "es": "Domicilio"
+              }
+            },
+            {
+              "value": "secondary",
+              "label": {
+                "en": "Second address",
+                "fr": "Seconde adresse",
+                "de": "Zweite Adresse",
+                "es": "Segunda dirección"
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }
