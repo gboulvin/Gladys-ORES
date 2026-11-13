@@ -10,6 +10,11 @@ GitHub Release.
 
 ## [Unreleased]
 
+### Changed
+
+- Documentation: gas and electricity consumption are not planned (my.ores.be only
+  accepts the itsme / eID sign-in, which cannot be automated).
+
 ## [0.2.0] - 2026-11-13
 
 ### Added

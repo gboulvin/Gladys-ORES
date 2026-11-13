@@ -106,9 +106,13 @@ Adresse: Fügen Sie zwei Widgets hinzu, um beide zu sehen.
 
 ## Gas- und Stromverbrauch
 
-Noch nicht verfügbar. Das Portal my.ores.be hat keine öffentliche API, und die Anmeldung per
-itsme / eID lässt sich nicht automatisieren. Eine nächste Version wird sie über die
-E-Mail-/Passwort-Anmeldung von my.ores.be hinzufügen, sofern diese es erlaubt.
+Nicht geplant. Das Portal my.ores.be hat keine öffentliche API und akzeptiert nur noch die
+Anmeldung per itsme / eID (die Anmeldung per E-Mail / Passwort wurde eingestellt). Diese
+Anmeldungen erfordern jedes Mal eine Bestätigung durch den Menschen und lassen sich nicht
+automatisieren.
+
+Ein gelegentlicher Import des Verbrauchsexports von my.ores.be bleibt möglich. Bei Interesse
+eröffnen Sie bitte ein [Issue](https://github.com/gboulvin/Gladys-ORES/issues).
 
 ## Datenschutz
 

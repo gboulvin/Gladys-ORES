@@ -104,9 +104,12 @@ ajoutez deux widgets pour voir les deux.
 
 ## Consommations gaz et électricité
 
-Pas encore disponibles. Le portail my.ores.be n'a pas d'API publique, et sa connexion par itsme
-ou carte d'identité ne peut pas être automatisée. Une prochaine version les ajoutera via la
-connexion e-mail / mot de passe de my.ores.be, si elle le permet.
+Non prévues. Le portail my.ores.be n'a pas d'API publique et n'accepte plus que la connexion
+par itsme ou carte d'identité (la connexion e-mail / mot de passe est abandonnée). Ces
+connexions demandent une validation humaine à chaque fois et ne peuvent pas être automatisées.
+
+Un import ponctuel de l'export de consommation de my.ores.be reste envisageable. Si cela vous
+intéresse, ouvrez une [issue](https://github.com/gboulvin/Gladys-ORES/issues).
 
 ## Confidentialité
 

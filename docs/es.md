@@ -104,9 +104,12 @@ añada dos widgets para ver ambas.
 
 ## Consumo de gas y electricidad
 
-Todavía no disponible. El portal my.ores.be no tiene API pública, y su inicio de sesión con
-itsme o DNI electrónico no se puede automatizar. Una próxima versión lo añadirá mediante el
-inicio de sesión con correo electrónico y contraseña de my.ores.be, si lo permite.
+No previsto. El portal my.ores.be no tiene API pública y solo acepta el inicio de sesión con
+itsme o DNI electrónico (el inicio de sesión con correo y contraseña se ha abandonado). Estos
+inicios de sesión requieren una aprobación humana cada vez y no se pueden automatizar.
+
+Sigue siendo posible una importación puntual de la exportación de consumo de my.ores.be. Si le
+interesa, abra una [incidencia](https://github.com/gboulvin/Gladys-ORES/issues).
 
 ## Privacidad
 

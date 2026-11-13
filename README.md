@@ -30,8 +30,9 @@ User documentation: [English](docs/en.md) · [Français](docs/fr.md) · [Deutsch
 | Widget         | `network_status`: live tiles, status rows, incident list, refresh button                                                                      |
 | Config action  | `test_connection`: reach the outage map and count the incidents                                                                               |
 
-Gas and electricity consumption are **not** implemented yet: my.ores.be has no public API
-and its itsme / eID sign-in cannot be automated. See [CHANGELOG.md](CHANGELOG.md).
+Gas and electricity consumption are **not planned**: my.ores.be has no public API and only
+accepts the itsme / eID sign-in, which cannot be automated. An occasional import of the
+my.ores.be consumption export could be added on demand: open an issue.
 
 ## Project structure
 

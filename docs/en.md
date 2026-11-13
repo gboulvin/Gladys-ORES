@@ -101,9 +101,12 @@ widgets to see both.
 
 ## Gas and electricity consumption
 
-Not available yet. The my.ores.be portal has no public API, and its itsme / eID sign-in cannot
-be automated. A next version will add them through the my.ores.be e-mail / password sign-in,
-if it allows it.
+Not planned. The my.ores.be portal has no public API and only accepts the itsme / eID sign-in
+(the e-mail / password sign-in is discontinued). These sign-ins need a human approval every
+time and cannot be automated.
+
+An occasional import of the my.ores.be consumption export remains possible. If you are
+interested, open an [issue](https://github.com/gboulvin/Gladys-ORES/issues).
 
 ## Privacy
 

@@ -47,6 +47,5 @@ ORES directly).
 - Its only writable location is `/data`, where it keeps the last known network
   status.
 
-A future version reading your consumption from my.ores.be would store your ORES
-credentials in the Gladys configuration: they must never appear in the logs, in
-an error message or in an issue. Treat any such leak as a vulnerability.
+The integration never asks for your ORES credentials (my.ores.be account):
+never paste them, nor an ORES token, in the configuration, an issue or a log.

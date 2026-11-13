@@ -14,10 +14,13 @@ its only runtime dependency. Started from the official JavaScript template.
 Today it reports the **network status** (outages, planned works, delays) of two address
 slots, from the public ORES outage map: `primary` (the home: the Gladys house reverse-geocoded
 through OpenStreetMap Nominatim, or an address typed by hand) and `secondary` (an optional
-second address typed by hand). **Consumption** (gas, electricity) is planned
-through the my.ores.be portal and not implemented yet: that portal has no public API, the
-itsme / eID sign-in cannot be automated (never try to work around it), and the SPA refresh
-tokens it issues last 24 h without sliding. Only the e-mail / password sign-in may work.
+second address typed by hand). **Consumption** (gas, electricity) is **not planned**:
+my.ores.be has no public API, the e-mail / password sign-in is discontinued, the itsme / eID
+sign-in cannot be automated (never try to work around it) and the SPA refresh tokens it issues
+last 24 h without sliding. The only option left, on user demand, is an occasional import of
+the my.ores.be consumption export (`publishEnergyConsumption`, dated after the fact). Gladys
+has no file field: paste daily readings in a string field, drop the file under `/data`, or
+serve an upload page from a sub-container.
 
 ## Commands
 
