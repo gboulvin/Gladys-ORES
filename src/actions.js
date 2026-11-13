@@ -14,7 +14,7 @@ export const ACTIONS = {
     logger.info('Action test_connection');
     try {
       const raw = await service.fetchRaw();
-      const now = new Date();
+      const now = service.now();
       const total = raw.filter(
         (incident) => classifyIncident(incident, now).phase !== INCIDENT_PHASES.ENDED,
       ).length;

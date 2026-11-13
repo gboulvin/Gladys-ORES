@@ -28,4 +28,9 @@ GitHub Release.
 - The network status baseline is kept under `/data`: a restart neither replays nor misses
   a transition.
 
+### Fixed
+
+- The "Test the ORES outage map" action counted the incidents against the system clock
+  instead of the service clock (tests failed once the fixture date was past).
+
 [Unreleased]: https://github.com/gboulvin/Gladys-ORES/commits/main

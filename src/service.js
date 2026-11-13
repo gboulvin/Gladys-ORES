@@ -93,6 +93,9 @@ export function createOresService({
 
     getSnapshot: () => monitor.getSnapshot(),
 
+    /** The service clock (injected in tests). */
+    now: () => clock(),
+
     /** Raw map (cached), for the test action. */
     fetchRaw,
 
