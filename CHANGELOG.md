@@ -12,6 +12,9 @@ GitHub Release.
 
 ### Changed
 
+- Declared for Belgium only (`countries: ["BE"]`): the Gladys catalog of an
+  instance located elsewhere no longer lists it in its browse views (the
+  search still finds it). Requires Gladys 5.3.0 or later.
 - Documentation: gas and electricity consumption are not planned (my.ores.be only
   accepts the itsme / eID sign-in, which cannot be automated).
 
