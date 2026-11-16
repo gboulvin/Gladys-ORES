@@ -88,8 +88,9 @@ ended unless delayed and recently updated. Read every field defensively. Cache t
   manifest texts (`{ en, fr, de, es }` objects, never plain strings), `src/i18n.js`
   messages, `docs/{en,fr,de,es}.md`. `test/i18n.test.js` enforces it. The catalog
   `description` holds 10 to 100 characters per language.
-- **Gladys version**: keep `>=5.1.0`. A `source: "houses"` select would need 5.2.0: the house
-  is picked by name (`house_name`) through `getHouses()` instead.
+- **Gladys version**: `>=5.3.0`, for the catalog `countries` (`["BE"]`). The house is still
+  picked by name (`house_name`) through `getHouses()`, not a `source: "houses"` select
+  (5.2.0), from the time the minimum was 5.1.0.
 - **Nominatim policy**: identifying User-Agent, one request per coordinates (cached), a failed
   lookup retried at most once an hour. Never log coordinates nor addresses.
 - **Transport tag** is `cloud` (manifest `transports`). Add `local` only with a real local

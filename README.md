@@ -13,7 +13,8 @@ planned works with a power cut, announced delays. Built from the official
 
 - **Transport tag:** `cloud`.
 - **Languages:** English, French, German, Spanish (manifest, messages, widget, docs).
-- **Gladys:** 5.1.0 or later (scene triggers, scene actions and widgets).
+- **Gladys:** 5.3.0 or later (catalog countries; 5.1.0 for scene triggers, scene actions
+  and widgets).
 - **House location:** requested (`location: true`); the coordinates are reverse-geocoded once
   through OpenStreetMap Nominatim. Type the address by hand to avoid it.
 
